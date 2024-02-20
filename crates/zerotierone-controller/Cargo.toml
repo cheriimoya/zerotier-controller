@@ -1,0 +1,9 @@
+[package]
+name = "zerotier-controller"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.79"
+reqwest = "0.11.24"
+zerotier-one-api = { git = "https://github.com/zerotier/zerotier-rust-api", rev="8407b45052e9b902972adc77a01fbe1f82ee8928" }

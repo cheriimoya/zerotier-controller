@@ -46,6 +46,13 @@ pub async fn get_networks() -> Result<Vec<Network>, anyhow::Error> {
     Ok(networks.to_vec())
 }
 
+pub async fn get_network(network_id: &str) -> Result<Network, anyhow::Error> {
+    let client = local_client_from_file(authtoken_path(None))?;
+    let network = client.get_network(network_id).await?;
+
+    Ok(network.into_inner())
+}
+
 pub async fn generate_new_network() -> Result<ControllerNetwork, zerotier_one_api::Error> {
     let client = local_client_from_file(authtoken_path(None)).unwrap();
     let status = client.get_status().await.unwrap().into_inner();
