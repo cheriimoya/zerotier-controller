@@ -1,7 +1,7 @@
 use clap::{arg, command, value_parser, ArgAction, Command};
 use anyhow::Error;
 
-use zerotierone_controller;
+use zerotierone_controller::{self, local_client_from_file, authtoken_path};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -23,7 +23,14 @@ async fn main() -> Result<(), Error> {
                 .about("List the networks of this controller")
                 .arg(arg!([network_id] "Network id, if left out, it will be generated automatically"))
         )
+        .subcommand(
+            Command::new("network-info")
+                .about("Print information about network")
+                .arg(arg!([name] "Name of the network").required(true)),
+        )
         .get_matches();
+
+    let client = local_client_from_file(authtoken_path(None)).unwrap();
 
     if matches.subcommand_matches("status").is_some() {
         let status = zerotierone_controller::get_status().await?;
@@ -52,6 +59,24 @@ async fn main() -> Result<(), Error> {
 
         let network = zerotierone_controller::generate_new_network(network_id.cloned()).await?;
         println!("Network ID is: {}", network.id.unwrap())
+    }
+
+    if let Some(matche) = matches.subcommand_matches("network-info") {
+        let network_id = matche.get_one::<String>("name").expect("No network_id was given");
+
+        let network = zerotierone_controller::get_controller_network(network_id).await?;
+        let members = client.get_controller_network_members(network_id).await.unwrap().into_inner();
+
+        let mut member_list = Vec::new();
+        for (member, _) in members {
+            let network_member = client.get_controller_network_member(network_id, &member).await?.into_inner();
+            member_list.push(network_member);
+        }
+        println!("Network ID is: {}", network.id.unwrap());
+        println!("Members:");
+        for member in member_list {
+            println!("- {}: authorized = {}", member.id.unwrap(), member.authorized.unwrap());
+        }
     }
 
     Ok(())
