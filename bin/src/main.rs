@@ -1,6 +1,7 @@
 use clap::{arg, command, value_parser, ArgAction, Command};
 use anyhow::Error;
 
+use zerotier_one_api::types::MemberAuthorization;
 use zerotierone_controller::{self, local_client_from_file, authtoken_path};
 
 #[tokio::main]
@@ -27,6 +28,12 @@ async fn main() -> Result<(), Error> {
             Command::new("network-info")
                 .about("Print information about network")
                 .arg(arg!([name] "Name of the network").required(true)),
+        )
+        .subcommand(
+            Command::new("authorize-member")
+                .about("Authorize member in a given network")
+                .arg(arg!([network_id] "Name of the network").required(true))
+                .arg(arg!([member_id] "Id of the member").required(true))
         )
         .get_matches();
 
@@ -77,6 +84,21 @@ async fn main() -> Result<(), Error> {
         for member in member_list {
             println!("- {}: authorized = {}", member.id.unwrap(), member.authorized.unwrap());
         }
+    }
+
+    if let Some(matche) = matches.subcommand_matches("authorize-member") {
+        let network_id = matche.get_one::<String>("network_id").expect("No network_id was given");
+        let member_id = matche.get_one::<String>("member_id").expect("No member_id was given");
+
+        let members = client.get_controller_network_members(network_id).await.unwrap().into_inner();
+
+        let mem_list = members.iter().filter(|member| member.0 == member_id).collect::<Vec<_>>();
+        if mem_list.len() == 0 {
+            panic!("Member is not in network");
+        }
+
+        let changed_member = client.update_network_member(network_id, member_id, &MemberAuthorization { authorized: Some(true) }).await?;
+
     }
 
     Ok(())

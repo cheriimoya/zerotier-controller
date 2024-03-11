@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 zerotierone-controller = { path = "../crates/zerotierone-controller" }
+zerotier-one-api = { git = "https://github.com/cheriimoya/zerotier-rust-api", rev="b8fbec1550385575c6d350bcc4f13bc880d201c9" }
 clap = { version = "4.5.1", features = ["cargo"] }
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
 anyhow = "1.0.80"
