@@ -35,17 +35,19 @@ async fn main() -> Result<(), Error> {
     }
 
     if matches.subcommand_matches("list-networks").is_some() {
-        let networks = zerotierone_controller::get_networks().await?;
+        let networks = zerotierone_controller::get_controller_networks().await?;
 
         if networks.len() == 0 {
             println!("There are no networks");
         } else {
-            println!("{:?}", networks);
+            println!("This controller has the following networks:");
+            for network in networks {
+                println!("- {}", network);
+            }
         }
     }
 
     if let Some(matche) = matches.subcommand_matches("create-network") {
-        println!("create");
         let network_id = matche.get_one::<String>("network_id");
         zerotierone_controller::generate_new_network(network_id.cloned()).await?;
     }

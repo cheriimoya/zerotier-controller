@@ -39,16 +39,16 @@ fn local_client(authtoken: String) -> Result<zerotier_one_api::Client, anyhow::E
     ))
 }
 
-pub async fn get_networks() -> Result<Vec<Network>, anyhow::Error> {
+pub async fn get_controller_networks() -> Result<Vec<String>, anyhow::Error> {
     let client = local_client_from_file(authtoken_path(None))?;
-    let networks = client.get_networks().await?;
+    let networks = client.get_controller_networks().await?;
 
     Ok(networks.to_vec())
 }
 
-pub async fn get_network(network_id: &str) -> Result<Network, anyhow::Error> {
+pub async fn get_controller_network(network_id: &str) -> Result<ControllerNetwork, anyhow::Error> {
     let client = local_client_from_file(authtoken_path(None))?;
-    let network = client.get_network(network_id).await?;
+    let network = client.get_controller_network(network_id).await?;
 
     Ok(network.into_inner())
 }
