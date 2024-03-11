@@ -56,56 +56,36 @@ pub async fn get_controller_network(network_id: &str) -> Result<ControllerNetwor
 pub async fn generate_new_network(network_id: Option<String>) -> Result<ControllerNetwork, zerotier_one_api::Error> {
     let client = local_client_from_file(authtoken_path(None)).unwrap();
     let status = client.get_status().await.unwrap().into_inner();
+    let address = status.address.unwrap();
+
+    let full_address = format!("{}{}", &address, network_id.unwrap_or("______".to_string()));
+
     let response = client.generate_controller_network(
-            &status.address.unwrap(),
-            &ControllerNetwork {
-                capabilities: Vec::new(),
-                creation_time: None,
-                enable_broadcast: None,
-                id: network_id,
-                ip_assignment_pools: Vec::new(),
-                mtu: None,
-                multicast_limit: None,
-                name: None,
-                nwid: None,
-                objtype: None,
-                private: None,
-                remote_trace_level: None,
-                remote_trace_target: None,
-                revision: None,
-                routes: Vec::new(),
-                rules: Vec::new(),
-                tags: Vec::new(),
-                v4_assign_mode: None,
-                v6_assign_mode: None,
-            },
-        ).await;
+        &full_address,
+        &ControllerNetwork {
+            capabilities: Vec::new(),
+            creation_time: None,
+            enable_broadcast: None,
+            id: None,
+            ip_assignment_pools: Vec::new(),
+            mtu: None,
+            multicast_limit: None,
+            name: None,
+            nwid: None,
+            objtype: None,
+            private: None,
+            remote_trace_level: None,
+            remote_trace_target: None,
+            revision: None,
+            routes: Vec::new(),
+            rules: Vec::new(),
+            tags: Vec::new(),
+            v4_assign_mode: None,
+            v6_assign_mode: None,
+        },
+    ).await;
 
-    println!("{:?}", response.unwrap_err());
-
-    // Ok(response.unwrap().into_inner())
-    Ok(ControllerNetwork {
-                capabilities: Vec::new(),
-                creation_time: None,
-                enable_broadcast: None,
-                id: None,
-                ip_assignment_pools: Vec::new(),
-                mtu: None,
-                multicast_limit: None,
-                name: None,
-                nwid: None,
-                objtype: None,
-                private: None,
-                remote_trace_level: None,
-                remote_trace_target: None,
-                revision: None,
-                routes: Vec::new(),
-                rules: Vec::new(),
-                tags: Vec::new(),
-                v4_assign_mode: None,
-                v6_assign_mode: None,
-            },
-        )
+    Ok(response.unwrap().into_inner())
 }
 
 pub async fn get_status() -> Result<zerotier_one_api::types::Status, anyhow::Error> {

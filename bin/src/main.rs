@@ -49,7 +49,9 @@ async fn main() -> Result<(), Error> {
 
     if let Some(matche) = matches.subcommand_matches("create-network") {
         let network_id = matche.get_one::<String>("network_id");
-        zerotierone_controller::generate_new_network(network_id.cloned()).await?;
+
+        let network = zerotierone_controller::generate_new_network(network_id.cloned()).await?;
+        println!("Network ID is: {}", network.id.unwrap())
     }
 
     Ok(())
